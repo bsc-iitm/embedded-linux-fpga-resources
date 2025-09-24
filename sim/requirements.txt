@@ -1,0 +1,6 @@
+# Shared Python dependencies for all simulations
+# Keep this minimal; add packages here if future sims need them.
+cocotb
+pytest
+cocotbext-axi
+cocotb-test
