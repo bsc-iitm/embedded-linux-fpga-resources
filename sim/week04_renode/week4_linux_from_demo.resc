@@ -1,0 +1,15 @@
+# Purpose: extend Renode's vexpress Linux demo with SmartTimer window mapping
+using sysbus
+
+# Boot the stock vexpress-a9 Linux demo (downloads artifacts automatically)
+i @scripts/single-node/vexpress.resc
+
+# Pause the CPU to add our mapping deterministically
+pause
+
+# Overlay SmartTimer placeholder MMIO window at 0x70000000 (4 KiB)
+machine LoadPlatformDescription @overlays/smarttimer_stub.repl
+sysbus LogPeripheralAccess smarttimer
+
+# Resume Linux
+start
