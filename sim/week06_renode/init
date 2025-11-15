@@ -1,0 +1,12 @@
+#!/bin/sh
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+echo "Userspace up; dropping to shell."
+
+# Setting up for autoloading driver
+for f in /sys/bus/platform/devices/*/modalias ; do
+	[ -f "$f" ] && modprobe "$(cat "$f")" 2>/dev/null || true
+done
+
+exec /bin/sh < /dev/console > /dev/console 2>&1

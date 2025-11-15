@@ -1,0 +1,85 @@
+# Purpose: Renode script for FIR Filter + Linux demo
+# Boots ARM Linux with FIR peripheral stub and loads driver
+
+using sysbus
+
+# Create machine
+mach create "FIRLinuxDemo"
+
+# Load base Zynq platform
+machine LoadPlatformDescription @platforms/boards/zedboard.repl
+
+# Load FIR Filter peripheral
+machine LoadPlatformDescription @overlays/fir_cosim.repl
+fir_filter SimulationFilePathLinux @../verilator_cosim/build/libVtop.so
+
+# Show UART
+showAnalyzer uart0
+showAnalyzer uart1
+sysbus LogPeripheralAccess sysbus.fir_filter True
+
+# Memory redirect for Linux
+sysbus Redirect 0xC0000000 0x0 0x10000000
+
+# Binary paths (adjust as needed)
+# You need:
+# 1. vmlinux (Linux kernel ELF)
+# 2. Device tree blob with FIR node
+# 3. fir_simple.ko (driver module)
+
+# Example paths - update for your setup
+$elf=@binfiles/vmlinux
+$dtb=@binfiles/zynq-zed-fir.dtb
+
+# Set timer frequency
+# ttc0 Frequency 33333333
+# ttc1 Frequency 33333333
+
+macro reset
+"""
+    ## Set registers
+    cpu SetRegister 0 0x000
+    cpu SetRegister 1 0xD32  # Processor variant (Cortex-A9)
+    cpu SetRegister 2 0x100  # Device tree address
+
+    ## Load binaries
+    sysbus LoadELF $elf
+    sysbus LoadFdt $dtb 0x100 "cpufreq.off=1 clk_ignore_unused" false
+"""
+
+runMacro $reset
+
+echo ""
+echo "=== FIR Filter + Linux Demo Setup ==="
+echo ""
+echo "Platform: ZedBoard (Zynq-7000, Cortex-A9)"
+echo "FIR Filter @ 0x70002000 (Verilator Co-Sim via IntegrationLibrary)"
+echo ""
+echo "Usage after boot:"
+echo "  1. Load driver:"
+echo "     # insmod /path/to/fir_simple.ko"
+echo ""
+echo "  2. Find device:"
+echo "     # ls /sys/bus/platform/devices/*fir*"
+echo ""
+echo "  3. Load coefficients (4-tap averaging: 0.25 each in Q15):"
+echo "     # echo \"8192,8192,8192,8192\" > /sys/.../coeff"
+echo ""
+echo "  4. Write input data:"
+echo "     # echo \"reset\" > /sys/.../data_in"
+echo "     # echo \"10,20,30,40,50\" > /sys/.../data_in"
+echo ""
+echo "  5. Start processing:"
+echo "     # echo \"start\" > /sys/.../ctrl"
+echo ""
+echo "  6. Check status:"
+echo "     # cat /sys/.../status"
+echo ""
+echo "  7. Read filtered output:"
+echo "     # cat /sys/.../data_out"
+echo ""
+echo "Expected output for [10,20,30,40,50] with averaging:"
+echo "  [2, 7, 15, 25, 35] (approximately)"
+echo ""
+echo "To start: type 'start' in Renode monitor"
+echo ""

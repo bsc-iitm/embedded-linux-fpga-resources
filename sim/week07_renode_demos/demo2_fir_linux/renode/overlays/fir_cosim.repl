@@ -1,0 +1,8 @@
+// FIR Filter Verilator Co-Simulation Peripheral (AXI-Lite target)
+
+fir_filter: CoSimulated.CoSimulatedPeripheral @ sysbus <0x70002000, +0x1000>
+    // Optional tuning knobs:
+    frequency: 1000
+    // limitBuffer: 100000
+    // timeout: 10000
+

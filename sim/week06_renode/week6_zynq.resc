@@ -1,0 +1,36 @@
+# Purpose: boot ARM Linux and prepare to load mmio_demo.ko in Renode
+using sysbus
+
+# Create a fresh machine without a fixed name (avoids clashes on re-run)
+mach create
+# Load a known-good ARM board (Cortex-A9)
+machine LoadPlatformDescription @platforms/boards/zedboard.repl
+
+# Overlay SmartTimer placeholder MMIO window at 0x70000000 (4 KiB)
+machine LoadPlatformDescription @overlays/peripherals.repl
+
+showAnalyzer uart0
+showAnalyzer uart1
+sysbus Redirect 0xC0000000 0x0 0x10000000
+
+$elf=@binfiles/vmlinux
+$dtb=@binfiles/zynq-zed-peripherals.dtb
+
+## set timer frequency ##
+# ttc0 Frequency 33333333
+# ttc1 Frequency 33333333
+
+macro reset
+"""
+    ## set registers ##
+    cpu SetRegister 0 0x000
+    cpu SetRegister 1 0xD32 # processor variant (cortex-a9)
+    cpu SetRegister 2 0x100 # device tree address
+
+    ## load binaries ##
+    sysbus LoadELF $elf
+    sysbus LoadFdt $dtb 0x100 "cpufreq.off=1 clk_ignore_unused" false
+"""
+
+runMacro $reset
+

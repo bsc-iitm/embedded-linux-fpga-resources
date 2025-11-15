@@ -1,0 +1,53 @@
+# Purpose: Renode script for Smart Timer bare-metal demo with Verilator co-simulation
+# Boots ARM Cortex-A9 without Linux and runs timer_test.c
+# Uses real Verilog RTL via Verilator (libVtop.so) through the Integration Library
+
+using sysbus
+
+# Create machine
+mach create "SmartTimerDemo"
+
+# Load base platform (Zynq-7000, same as ZedBoard)
+machine LoadPlatformDescription @platforms/cpus/zynq-7000.repl
+
+# Load Smart Timer peripheral via CoSimulatedPeripheral + IntegrationLibrary .so
+# Build lib first in `verilator_cosim/build/` (see README in that folder)
+machine LoadPlatformDescription @smarttimer_cosim.repl
+smarttimer SimulationFilePathLinux @../../verilator_cosim/build/libVtop.so
+# sysbus LogAllPeripheralsAccess true
+sysbus LogPeripheralAccess sysbus.smarttimer True
+
+# Show UART
+showAnalyzer uart0
+showAnalyzer uart1
+
+# Memory redirect for Linux
+sysbus Redirect 0xC0000000 0x0 0x10000000
+
+# Binary paths (adjust as needed)
+# You need:
+# 1. vmlinux (Linux kernel ELF)
+# 2. Device tree blob with FIR node
+# 3. fir_simple.ko (driver module)
+
+# Example paths - update for your setup
+$elf=@binfiles/vmlinux
+$dtb=@binfiles/zynq-zed-peripherals.dtb
+
+# Set timer frequency
+# ttc0 Frequency 33333333
+# ttc1 Frequency 33333333
+
+macro reset
+"""
+    ## Set registers
+    cpu SetRegister 0 0x000
+    cpu SetRegister 1 0xD32  # Processor variant (Cortex-A9)
+    cpu SetRegister 2 0x100  # Device tree address
+
+    ## Load binaries
+    sysbus LoadELF $elf
+    sysbus LoadFdt $dtb 0x100 "cpufreq.off=1 clk_ignore_unused" false
+"""
+
+runMacro $reset

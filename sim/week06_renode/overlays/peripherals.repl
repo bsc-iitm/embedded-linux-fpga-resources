@@ -1,0 +1,5 @@
+smarttimer: Memory.MappedMemory @ sysbus 0x70000000
+    size: 0x1000
+
+fft0: Memory.MappedMemory @ sysbus 0x70001000
+    size: 0x1000
