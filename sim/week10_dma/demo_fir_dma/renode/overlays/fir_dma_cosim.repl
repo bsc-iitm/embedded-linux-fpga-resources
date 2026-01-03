@@ -1,0 +1,17 @@
+// FIR DMA co-simulation overlay
+
+using sysbus
+
+axi_dma: DMA.XilinxAXIDMA @ sysbus 0x40400000
+    mm2s_irq -> gic@34
+    s2mm_irq -> gic@35
+
+fir_filter: Verilated.VerilatorIntegrationLibrary @ sysbus 0x43c00000
+    size: 0x1000
+    address: "../verilator_cosim/../libVfir_stream_top.so"
+    numberOfTimeDomains: 1
+
+// Connect AXI Stream between DMA and FIR
+axi_dma.mm2s_axis -> fir_filter.s_axis
+fir_filter.m_axis -> axi_dma.s2mm_axis
+

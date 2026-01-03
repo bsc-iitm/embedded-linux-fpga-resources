@@ -1,0 +1,13 @@
+/* Basic repl architecture for bare metal.  Builds on vexpress.
+* using "@platforms/cpus/vexpress.repl" 
+*/
+
+cpu: CPU.ARMv7A @ sysbus
+    cpuType: "cortex-a9"
+
+systemram: Memory.MappedMemory @ sysbus 0x80000000
+    size: 0x04000000
+
+/* SmartTimer placeholder: plain memory window */
+smarttimer: Memory.MappedMemory @ sysbus 0x70000000
+    size: 0x1000

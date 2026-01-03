@@ -1,0 +1,61 @@
+# Purpose: Renode script for Smart Timer bare-metal demo with Verilator co-simulation
+# Boots ARM Cortex-A9 without Linux and runs timer_test.c
+# Uses real Verilog RTL via Verilator (libVtop.so) through the Integration Library
+
+using sysbus
+
+# Create machine
+mach create "SmartTimerDemo"
+
+# Load base platform (Zynq-7000, same as ZedBoard)
+machine LoadPlatformDescription @platforms/cpus/zynq-7000.repl
+
+# Load Smart Timer peripheral via CoSimulatedPeripheral + IntegrationLibrary .so
+# Build lib first in `verilator_cosim/build/` (see README in that folder)
+machine LoadPlatformDescription @smarttimer_cosim.repl
+smarttimer SimulationFilePathLinux @../../verilator_cosim/build/libVtop.so
+
+# Show UART output
+showAnalyzer uart2
+
+# Load compiled bare-metal binary
+$elf=@../timer_test.elf
+sysbus LoadELF $elf
+
+# Set PC to entry point of ELF (vector at 0x0 for this baremetal image)
+cpu PC 0x0
+
+# For teaching demo, show the setup:
+echo ""
+echo "=== Smart Timer Verilator Co-Simulation Demo ==="
+echo ""
+echo "Platform: Zynq-7000 (Cortex-A9)"
+echo "Smart Timer @ 0x70000000 (Verilator Co-Sim via IntegrationLibrary)"
+echo "UART2 (PL011 @ 0x70001000) for output"
+echo "Binary loaded: timer_test.elf"
+echo ""
+echo "To run the demo:"
+echo "  (monitor) start"
+echo ""
+echo "Expected output in UART analyzer:"
+echo "  - Register configuration sequence"
+echo "  - STATUS register reads"
+echo "  - W1C behavior demonstration"
+echo ""
+echo "Alternatively, test registers manually:"
+echo "  (monitor) sysbus WriteDoubleWord 0x70000000 0x1  # Set CTRL.EN"
+echo "  (monitor) sysbus ReadDoubleWord 0x7000000C       # Read STATUS"
+echo ""
+
+# Optional: Set up a simple test from monitor
+macro test_registers
+"""
+    echo "Testing Smart Timer registers..."
+    sysbus WriteDoubleWord 0x70000004 0xFF   # PERIOD
+    sysbus WriteDoubleWord 0x70000008 0x7F   # DUTY
+    sysbus WriteDoubleWord 0x70000000 0x1    # CTRL.EN=1
+    sysbus ReadDoubleWord 0x7000000C         # Read STATUS
+    echo "Check logs for peripheral responses"
+"""
+
+echo "Try: runMacro \$test_registers"

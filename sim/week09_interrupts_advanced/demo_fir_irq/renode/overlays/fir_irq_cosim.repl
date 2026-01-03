@@ -1,0 +1,7 @@
+// FIR with IRQ (Week 9)
+
+fir_filter: CoSimulated.CoSimulatedPeripheral @ sysbus <0x70002000, +0x1000>
+    frequency: 10000
+    cosimToRenodeSignalRange: <0, +1>
+    0 -> gic@34  // SPI 34 (GIC ID 66)
+

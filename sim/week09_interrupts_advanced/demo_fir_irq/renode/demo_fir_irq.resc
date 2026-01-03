@@ -1,0 +1,33 @@
+using sysbus
+
+mach create "FIRIRQLinux"
+
+machine LoadPlatformDescription @platforms/boards/zedboard.repl
+machine LoadPlatformDescription @overlays/fir_irq_cosim.repl
+
+fir_filter SimulationFilePathLinux @../verilator_cosim/build/libVtop.so
+
+# showAnalyzer uart0
+showAnalyzer uart1
+
+sysbus Redirect 0xC0000000 0x0 0x10000000
+
+$elf=@binfiles/vmlinux
+$dtb=@binfiles/zynq-zed-fir-irq.dtb
+
+macro reset
+"""
+    cpu SetRegister 0 0x000
+    cpu SetRegister 1 0xD32
+    cpu SetRegister 2 0x100
+
+    sysbus LoadELF $elf
+    sysbus LoadFdt $dtb 0x100 "cpufreq.off=1 clk_ignore_unused" false
+"""
+
+runMacro $reset
+
+echo ""
+echo "=== FIR IRQ + Linux Demo (Week 9) ==="
+echo "FIR @ 0x70002000 with SPI 34 (GIC 66)"
+

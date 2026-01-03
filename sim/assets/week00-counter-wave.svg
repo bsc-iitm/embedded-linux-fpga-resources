@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" role="img" aria-label="Counter waveform with reset and enable">
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="20" y="24" font-family="Arial" font-size="18" fill="#333">Counter Waveform (clk, rstn, en, q)</text>
+  <g font-family="Arial" font-size="12" fill="#333">
+    <text x="20" y="60">clk</text>
+    <text x="20" y="90">rstn</text>
+    <text x="20" y="120">en</text>
+    <text x="20" y="150">q[7:0]</text>
+  </g>
+  <!-- clock -->
+  <g stroke="#000" stroke-width="2">
+    <polyline points="100,60 110,50 120,70 130,50 140,70 150,50 160,70 170,50 180,70 190,50 200,70 210,50 220,70 230,50 240,70 250,50 260,70 270,50 280,70 290,50 300,70 310,50 320,70 330,50 340,70 350,50 360,70 370,50 380,70 390,50 400,70 410,50"/>
+  </g>
+  <!-- rstn low then high -->
+  <g stroke="#c62828" stroke-width="2" fill="none">
+    <polyline points="100,90 200,110 200,90 410,90"/>
+  </g>
+  <!-- en low then high then low then high -->
+  <g stroke="#2e7d32" stroke-width="2" fill="none">
+    <polyline points="100,120 210,120 210,100 310,100 310,120 360,120 360,100 410,100"/>
+  </g>
+  <!-- q steps: 0 during reset, then inc 5, hold, inc 2 -->
+  <g stroke="#1976d2" stroke-width="2" fill="none">
+    <polyline points="100,150 200,150 210,150 220,148 230,146 240,144 250,142 260,140 270,140 280,140 290,140 300,140 310,138 320,136 330,134 340,132 350,130 360,130 370,128 380,126 390,124 400,122 410,120"/>
+  </g>
+  <text x="205" y="86" font-family="Arial" font-size="12" fill="#c62828">reset deassert</text>
+  <text x="215" y="96" font-family="Arial" font-size="12" fill="#2e7d32">en=1</text>
+  <text x="315" y="118" font-family="Arial" font-size="12" fill="#2e7d32">en=0</text>
+  <text x="365" y="118" font-family="Arial" font-size="12" fill="#2e7d32">en=1</text>
+</svg>

@@ -1,0 +1,25 @@
+# Purpose: run the bare-metal SmartTimer demo on ARM in Renode
+using sysbus
+
+# Create a fresh machine (name is optional)
+mach create
+
+# Load description of a simple system
+machine LoadPlatformDescription @smarttimer_arm.repl
+
+# Level -1 is NOISY - useful for debugging renode itself
+# level 0 - DEBUG, 1 for INFO, 2 for WARNING, 3 for ERROR
+logLevel 0
+
+# Some useful debugging information
+sysbus.cpu LogFunctionNames true
+sysbus LogAllPeripheralsAccess true
+# sysbus LogPeripheralAccess sysbus.smarttimer True
+
+# Load and run the bare-metal ELF
+sysbus LoadELF @bare/bare.elf
+
+# Optional - dump out each step of execution
+# cpu CreateExecutionTracing "tracer_name" @cpu.log PCAndOpcode
+
+# start

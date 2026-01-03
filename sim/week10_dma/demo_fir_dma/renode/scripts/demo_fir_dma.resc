@@ -1,0 +1,18 @@
+using sysbus
+mach create "fir-dma-demo"
+
+# Base Zynq platform
+machine LoadPlatformDescription @platforms/cpus/zynq-7000.repl
+
+# Load overlay with DMA + co-sim FIR
+machine LoadPlatformDescription @../overlays/fir_dma_cosim.repl
+
+# UART console
+showAnalyzer uart0
+
+# Load kernel + DTB if available (paths are placeholders)
+# sysbus LoadELF @path/to/zImage
+# sysbus LoadFdt @../dts/zynq-fir-dma.dtb 0x00008000 "console=ttyPS0,115200 root=/dev/ram0 rw" true
+
+start
+

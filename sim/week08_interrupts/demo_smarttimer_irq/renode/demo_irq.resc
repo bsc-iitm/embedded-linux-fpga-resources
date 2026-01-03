@@ -1,0 +1,48 @@
+## Week 8 Demo: Smart Timer with IRQ (Linux on ZedBoard) via CoSimulatedPeripheral
+
+using sysbus
+
+mach create "SmartTimerIRQLinux"
+
+# Load base Zynq platform (same as Week 7 Linux demos)
+machine LoadPlatformDescription @platforms/boards/zedboard.repl
+
+# Load SmartTimer CoSimulated peripheral overlay (replaces FIR example)
+machine LoadPlatformDescription @overlays/smarttimer_cosim.repl
+
+# Point the peripheral at the IntegrationLibrary-built .so
+smarttimer SimulationFilePathLinux @../verilator_cosim/build/libVtop.so
+
+# Show UARTs
+showAnalyzer uart0
+showAnalyzer uart1
+
+# Redirect memory for Linux (same as Week 7)
+sysbus Redirect 0xC0000000 0x0 0x10000000
+
+# Provide kernel and DTB paths
+$elf=@binfiles/vmlinux
+$dtb=@binfiles/zynq-zed-smarttimer-irq.dtb
+
+macro reset
+"""
+    cpu SetRegister 0 0x000
+    cpu SetRegister 1 0xD32
+    cpu SetRegister 2 0x100
+
+    sysbus LoadELF $elf
+    sysbus LoadFdt $dtb 0x100 "cpufreq.off=1 clk_ignore_unused" false
+"""
+
+runMacro $reset
+
+echo ""
+echo "=== Smart Timer (IRQ) + Linux Demo ==="
+echo "Platform: ZedBoard (Zynq-7000, Cortex-A9)"
+echo "SmartTimer @ 0x70000000 (CoSim via IntegrationLibrary)"
+echo ""
+echo "Usage after boot:"
+echo "  1. insmod smarttimer_irq_simple.ko"
+echo "  2. echo 50000 > /sys/devices/platform/smarttimer/period"
+echo "  3. echo 1 > /sys/devices/platform/smarttimer/enable"
+echo "  4. watch cat /sys/devices/platform/smarttimer/irq_count"

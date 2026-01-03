@@ -1,0 +1,16 @@
+/dts-v1/;
+/plugin/;
+
+// For this ZedBoard DTS, the parent bus is "/axi"
+/ {
+    fragment@0 {
+        target-path = "/axi";
+        __overlay__ {
+            smarttimer0: smart-timer@70000000 {
+                compatible = "acme,smart-timer-v1";
+                reg = <0x70000000 0x1000>;
+                status = "okay";
+            };
+        };
+    };
+};

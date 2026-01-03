@@ -1,0 +1,9 @@
+// Smart Timer Verilator Co-Simulation Peripheral (AXI-Lite target) for ZedBoard
+
+smarttimer: CoSimulated.CoSimulatedPeripheral @ sysbus <0x70000000, +0x1000>
+    // Optional tuning knobs (kept similar to Week 7 examples)
+    frequency: 100000
+    // limitBuffer: 100000
+    // timeout: 10000
+    cosimToRenodeSignalRange: <0, +1> // map irq as signal 
+    0 -> gic@33  // Route GPIO[0] to GIC input 65 (SPI 33)

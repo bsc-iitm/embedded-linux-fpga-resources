@@ -1,0 +1,11 @@
+// Smart Timer Verilator Co-Simulation Peripheral Definition
+// Uses Renode's CoSimulatedPeripheral with IntegrationLibrary .so
+
+uart2: UART.PL011 @ sysbus 0x70001000
+
+smarttimer: CoSimulated.CoSimulatedPeripheral @ sysbus <0x70000000, +0x1000>
+    // Frequency controls internal ticking for timeouts; AXI-Lite is event-driven
+    frequency: 10000
+    // Optional tuning knobs:
+    // limitBuffer: 100000
+    // timeout: 10000
