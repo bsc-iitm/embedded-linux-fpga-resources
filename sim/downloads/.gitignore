@@ -1,0 +1,21 @@
+# Ignore large downloaded files
+# Students should download these themselves following the instructions
+
+# Linux kernel source
+linux-*/
+
+# Busybox source
+busybox*/
+
+# Binary files
+*.img
+*.bin
+vmlinux*
+*.dtb
+*.cpio
+*.gz
+*.xz
+*.tar
+
+# Keep the README
+!README.md
