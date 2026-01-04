@@ -22,6 +22,21 @@ instances: one using MMIO (slow) and one using DMA (fast).
     +--------+
 ```
 
+## Images
+
+### Vivado Block Design
+
+![Vivado Block Design](block-design.png)
+
+### Address Map
+
+![Address Map](address-map.png)
+
+### Enable HP port
+
+![Enable HP Port](hp-port-enable.png)
+
+
 ## Step 1: Add RTL Sources
 
 1. Create new Vivado project for PYNQ-Z1 (xc7z020clg400-1)
@@ -122,8 +137,8 @@ AXI DMA s2mm_introut --> Zynq IRQ_F2P[0:0]
 
 | Block | Offset | Range |
 |-------|--------|-------|
-| squarer_mmio | 0x43C0_0000 | 4K |
-| axi_dma | 0x4040_0000 | 64K |
+| squarer_mmio | 0x6000_0000 | 4K |
+| axi_dma | 0x6001_0000 | 64K |
 
 ## Step 6: Generate and Export
 
@@ -164,32 +179,32 @@ After loading bitstream and drivers:
 
 ```bash
 # Load drivers
-insmod squarer_mmio.ko
-insmod squarer_dma.ko
+modprobe squarer_mmio
+modprobe squarer_dma
 
 # Run test
 ./test_squarer 1024
 ```
 
-Expected output:
+Example output:
 ```
 Squarer Driver Comparison
 =========================
 Samples: 1024
 
 Testing MMIO driver (/dev/squarer_mmio)...
-  Time: 2500000 ns (2500.00 us)
-  Per sample: 2441 ns
+  Time: 450000 ns (450.00 us)
+  Per sample: 441 ns
   Errors: 0
 
 Testing DMA driver (/dev/squarer_dma)...
-  Time: 15000 ns (15.00 us)
-  Per sample: 15 ns
+  Time: 45000 ns (45.00 us)
+  Per sample: 45 ns
   Errors: 0
 
 Summary
 -------
-MMIO:   2500000 ns  (1024 samples, 2 reg ops each = 2048 MMIO ops)
-DMA:      15000 ns  (1024 samples in single bulk transfer)
-Speedup: 166.7x
+MMIO:   450000 ns  (1024 samples)
+DMA:     45000 ns  (1024 samples in single bulk transfer)
+Speedup: 10x
 ```
