@@ -2,11 +2,16 @@
 
 export ARCH=arm
 export CROSS_COMPILE=arm-linux-gnueabihf-
-# Kernel path
-export KDIR=$PWD/../downloads/linux-6.6
-# Busybox path
-export BDIR=$PWD/../downloads/busybox-1.32.0
+
 # Lab folder
 export LDIR=$PWD
+# Simulation folder
+export SIM=$LDIR/..
+# Downloads
+export DL=$SIM/downloads
+# Kernel path
+export KDIR=$DL/linux-6.6
+# Busybox path
+export BDIR=$DL/busybox-1.32.0
 
 exec /bin/bash

@@ -1,24 +1,57 @@
 # Downloads Directory
 
-This directory is for kernel sources, busybox, and compiled binaries that you'll build during the exercises.  As mentioned in the top level README, you should ensure that you have set up a symlink properly so that this is accessible as `~/Desktop/downloads`.
+Before doing this, please follow the instructions in [Lab README](../labs/README.md) and run the `setup.sh` script present there.  The following instructions assume you have got all the appropriate environment variables already set up.
+
+For the lab sessions, you only need busybox and the kernel - you need renode for simulations that are not addressed in the lab sessions.
 
 ## Required Downloads
 
-### Renode emulator installation
+### Busybox Source
+
+Download busybox for creating the initramfs:
 
 ```bash
-cd sim/downloads
-wget https://github.com/renode/renode/releases/download/v1.16.0/renode-1.16.0.linux-portable.tar.gz
-tar -xf renode-1.16.0.linux-portable.tar.gz
+cd $DL
+# wget https://busybox.net/downloads/busybox-1_32_0.tar.gz
+wget https://launchpad.net/busybox/main/1.32.0/+download/busybox-1.32.0.tar.bz2
+tar -xf busybox-1.32.0.tar.bz2
 ```
 
+#### Configure and build busybox 
+
+Note: here `$SIM` refers to the path where the top level folder for exercises is.
+
+It is important that you do this before trying to compile the kernel since the kernel looks for the `/tmp/initramfs` folder and the build will fail without that.
+
+```bash
+cd busybox-1.32.0
+# Copy in a known good config - there are some issues with some packages like `tc`
+cp $SIM/week04_renode/config-busybox .config
+# Set up some include files etc for compilation - if there are any questions just
+# accept the defaults for the new settings.
+make oldconfig
+# You can use `-j$(nproc)` to run fully parallel if you have enough RAM
+# `-j4` means use 4 processors, which is a safer option to avoid running out of memory
+make -j4 CROSS_COMPILE=arm-linux-gnueabihf- install CONFIG_PREFIX=/tmp/initramfs
+```
+
+#### Set up the init script
+
+For the kernel to actually give you a shell interface to type commands, you need to make some additional files in the initramfs.  To do this, run the following commands:
+
+```bash
+cd $LDIR
+./initramfs-setup.sh
+```
+
+Now you can compile the kernel and it should result in a bootable kernel image.
 
 ### Linux Kernel Source
 
 Download the Linux kernel source (version 6.6 recommended):
 
 ```bash
-cd sim/downloads
+cd $DL
 wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.tar.xz
 tar -xf linux-6.6.tar.xz
 ```
@@ -39,28 +72,16 @@ make oldconfig
 make -j4
 ```
 
-### Busybox Source
+Once this is done, there should be a kernel in `$KDIR/arch/arm/boot/zImage`. You will use this later to build a boot image to put on the SD card.
 
-Download busybox for creating the initramfs:
+### Renode emulator installation
 
-```bash
-cd sim/downloads
-# wget https://busybox.net/downloads/busybox-1_32_0.tar.gz
-wget https://launchpad.net/busybox/main/1.32.0/+download/busybox-1.32.0.tar.bz2
-tar -xf busybox-1.32.0.tar.bz2
-```
-
-#### Configure and build busybox 
-
-(note: here `$SIM` refers to the path where the top level folder for exercises is.)
+*NOTE*: This is **not** required for the in-person lab sessions.  
 
 ```bash
-cd busybox-1.32.0
-# Copy in a known good config - there are some issues with some packages like `tc`
-cp $SIM/week04_renode/config-busybox .config
-# Set up some include files etc for compilation
-make oldconfig
-make -j$(nproc) CROSS_COMPILE=arm-linux-gnueabihf- install CONFIG_PREFIX=/tmp/initramfs
+cd $DL
+wget https://github.com/renode/renode/releases/download/v1.16.0/renode-1.16.0.linux-portable.tar.gz
+tar -xf renode-1.16.0.linux-portable.tar.gz
 ```
 
 ### Build Artifacts

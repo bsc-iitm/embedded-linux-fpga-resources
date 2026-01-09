@@ -104,6 +104,7 @@
 		ranges;
 		phandle = <0x16>;
 
+        // Entries for Linux lab demo
 //        smarttimer0: smart-timer@70000000 {
 //            compatible = "acme,smarttimer-v1";
 //            reg = <0x70000000 0x10000>;
@@ -112,36 +113,23 @@
 //            status = "okay";
 //        };
 
-        // FIR filter with AXI DMA
-        // reg[0] = FIR config registers (AXI-Lite)
-        // reg[1] = AXI DMA registers
-        // interrupts = S2MM completion IRQ
-//        fir0: fir-filter@43c00000 {
-//            compatible = "acme,fir-dma-v1";
-//            reg = <0x43c00000 0x10000>,   // FIR config @ 0x43C0_0000
-//                  <0x40400000 0x10000>;   // AXI DMA   @ 0x4040_0000
-//            reg-names = "fir", "dma";
-//            interrupts = <0 30 4>;        // SPI 30 (IRQ_F2P[1]), level high
-//            interrupt-parent = <0x04>;
-//            status = "disabled";          // Disable when using squarer demo
+//        // Squarer MMIO demo (slow path - per-sample register access)
+//        squarer_mmio: squarer-mmio@43c10000 {
+//            compatible = "demo,squarer-mmio";
+//            reg = <0x60000000 0x1000>;    // Squarer MMIO @ 0x6000_0000
+//            status = "okay";
 //        };
-
-        // Squarer MMIO demo (slow path - per-sample register access)
-        squarer_mmio: squarer-mmio@43c10000 {
-            compatible = "demo,squarer-mmio";
-            reg = <0x60000000 0x1000>;    // Squarer MMIO @ 0x6000_0000
-            status = "okay";
-        };
-
-        // Squarer DMA demo (fast path - bulk transfer)
-        // Uses AXI DMA for high-throughput data movement
-        squarer_dma: squarer-dma@40400000 {
-            compatible = "demo,squarer-dma";
-            reg = <0x60010000 0x1000>;   // AXI DMA @ 0x6001_0000
-            interrupts = <0 29 4>;        // SPI 29 (IRQ_F2P[0]), level high
-            interrupt-parent = <0x04>;
-            status = "okay";
-        };
+//
+//        // Squarer DMA demo (fast path - bulk transfer)
+//        // Uses AXI DMA for high-throughput data movement
+//        squarer_dma: squarer-dma@40400000 {
+//            compatible = "demo,squarer-dma";
+//            reg = <0x60010000 0x1000>;   // AXI DMA @ 0x6001_0000
+//            interrupts = <0 29 4>;        // SPI 29 (IRQ_F2P[0]), level high
+//            interrupt-parent = <0x04>;
+//            status = "okay";
+//        };
+        // End Entries for Linux lab demo
 
 		adc@f8007100 {
 			compatible = "xlnx,zynq-xadc-1.00.a";
