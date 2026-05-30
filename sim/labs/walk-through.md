@@ -50,12 +50,11 @@ Make sure the following packages are installed on your system (you can run the c
 sudo apt-get update
 sudo apt-get install curl
 
-# Device tree compiler (required for Renode demos)
+# Device tree compiler (used to build the DTB for the boot image)
 sudo apt-get install device-tree-compiler
 
 # ARM cross-compilation toolchain
 sudo apt-get install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
-sudo apt-get install gcc-arm-none-eabi  # For bare-metal demos
 
 # Build essentials
 sudo apt-get install build-essential flex bison libssl-dev libelf-dev cmake git
@@ -110,7 +109,7 @@ modprobe smarttimer_blocking
 
 should load the driver for the blocking interface.
 
-Now you can examine `/sys/bus/devices/platform/` and you should be able to find a device for the smart timer.  This folder should contain files for `duty`, `period`, `ctrl` and `status`, and allow you to interact with the hardware module that was created with the RTL code that you synthesized.
+Now you can examine `/sys/bus/platform/devices/` and you should be able to find a device for the smart timer.  This folder should contain files for `duty`, `period`, `ctrl` and `status`, and allow you to interact with the hardware module that was created with the RTL code that you synthesized.
 
 Writing `1` to the `ctrl` file will activate the timer.
 

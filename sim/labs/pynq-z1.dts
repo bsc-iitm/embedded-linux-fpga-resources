@@ -114,7 +114,7 @@
 //        };
 
 //        // Squarer MMIO demo (slow path - per-sample register access)
-//        squarer_mmio: squarer-mmio@43c10000 {
+//        squarer_mmio: squarer-mmio@60000000 {
 //            compatible = "demo,squarer-mmio";
 //            reg = <0x60000000 0x1000>;    // Squarer MMIO @ 0x6000_0000
 //            status = "okay";
@@ -122,7 +122,7 @@
 //
 //        // Squarer DMA demo (fast path - bulk transfer)
 //        // Uses AXI DMA for high-throughput data movement
-//        squarer_dma: squarer-dma@40400000 {
+//        squarer_dma: squarer-dma@60010000 {
 //            compatible = "demo,squarer-dma";
 //            reg = <0x60010000 0x1000>;   // AXI DMA @ 0x6001_0000
 //            interrupts = <0 29 4>;        // SPI 29 (IRQ_F2P[0]), level high

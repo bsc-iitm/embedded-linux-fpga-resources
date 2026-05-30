@@ -44,33 +44,16 @@ instances: one using MMIO (slow) and one using DMA (fast).
    - `squarer/rtl/squarer_mmio.v`
    - `squarer/rtl/squarer_stream.v`
 
-## Step 2: Package Custom IPs
+You do not need to package these as custom IPs. The block design below
+adds them as RTL module references and uses connection automation to wire
+up the AXI interfaces, exactly as in the smart timer design.
 
-### Package squarer_mmio
-
-1. Tools -> Create and Package New IP -> Package current project
-2. Name: `squarer_mmio`, Vendor: `demo`
-3. In IP Packager:
-   - Ports and Interfaces: Select `s_axil_*` -> Auto Infer AXI4-Lite Slave
-   - Name interface: `s_axil`
-   - Set address range: 4K
-4. Package IP
-
-### Package squarer_stream
-
-1. Create new packaging project with `squarer_stream.v`
-2. Name: `squarer_stream`, Vendor: `demo`
-3. In IP Packager:
-   - Select `s_axis_*` -> Auto Infer AXI Stream Slave (16-bit)
-   - Select `m_axis_*` -> Auto Infer AXI Stream Master (32-bit)
-4. Package IP
-
-## Step 3: Create Block Design
+## Step 2: Create Block Design
 
 1. IP Integrator -> Create Block Design
 2. Name: `squarer_demo`
 
-### Add IP Blocks
+### Add Blocks
 
 1. **ZYNQ7 Processing System**
    - Run Block Automation
@@ -78,7 +61,8 @@ instances: one using MMIO (slow) and one using DMA (fast).
      - PS-PL Configuration -> HP Slave AXI Interface -> Enable S AXI HP0
      - Interrupts -> Fabric Interrupts -> PL-PS -> IRQ_F2P[0:0]
 
-2. **squarer_mmio** (your custom IP)
+2. **squarer_mmio** (add the RTL module: right-click in the diagram ->
+   Add Module, then select `squarer_mmio`)
 
 3. **AXI DMA**
    - Double-click to configure:
@@ -87,7 +71,7 @@ instances: one using MMIO (slow) and one using DMA (fast).
      - Stream Data Width: 32 (output is 32-bit)
      - Max Burst Size: 256
 
-4. **squarer_stream** (your custom IP)
+4. **squarer_stream** (add the RTL module the same way as `squarer_mmio`)
 
 5. **AXI Interconnect** (for GP0 connections)
 
@@ -95,7 +79,7 @@ instances: one using MMIO (slow) and one using DMA (fast).
 
 7. **Concat** (for interrupts if needed)
 
-## Step 4: Connect the Design
+## Step 3: Connect the Design
 
 ### Clock and Reset
 - FCLK_CLK0 -> all IP clocks
@@ -133,14 +117,16 @@ Or use direct connection if widths match.
 AXI DMA s2mm_introut --> Zynq IRQ_F2P[0:0]
 ```
 
-## Step 5: Address Map
+## Step 4: Address Map
 
 | Block | Offset | Range |
 |-------|--------|-------|
 | squarer_mmio | 0x6000_0000 | 4K |
-| axi_dma | 0x6001_0000 | 64K |
+| axi_dma | 0x6001_0000 | 4K |
 
-## Step 6: Generate and Export
+These offsets and ranges must match the `reg` entries in `pynq-z1.dts`.
+
+## Step 5: Generate and Export
 
 1. Validate Design (F6)
 2. Generate Block Design
@@ -179,32 +165,32 @@ After loading bitstream and drivers:
 
 ```bash
 # Load drivers
-modprobe squarer_mmio
-modprobe squarer_dma
+insmod squarer_mmio.ko
+insmod squarer_dma.ko
 
 # Run test
 ./test_squarer 1024
 ```
 
-Example output:
+Example output (exact timings will vary from run to run):
 ```
 Squarer Driver Comparison
 =========================
 Samples: 1024
 
 Testing MMIO driver (/dev/squarer_mmio)...
-  Time: 450000 ns (450.00 us)
-  Per sample: 441 ns
+  Time: 2500000 ns (2500.00 us)
+  Per sample: 2441 ns
   Errors: 0
 
 Testing DMA driver (/dev/squarer_dma)...
-  Time: 45000 ns (45.00 us)
-  Per sample: 45 ns
+  Time: 15000 ns (15.00 us)
+  Per sample: 15 ns
   Errors: 0
 
 Summary
 -------
-MMIO:   450000 ns  (1024 samples)
-DMA:     45000 ns  (1024 samples in single bulk transfer)
-Speedup: 10x
+MMIO:   2500000 ns  (1024 samples)
+DMA:      15000 ns  (1024 samples in single bulk transfer)
+Speedup: 166.7x
 ```

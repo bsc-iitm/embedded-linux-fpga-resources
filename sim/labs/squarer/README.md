@@ -139,8 +139,8 @@ For 1024 samples, that's ~10-20 microseconds including setup overhead.
 
 See [VIVADO.md](VIVADO.md) for block design setup instructions.
 
-Required Vivado IP:
-- squarer_mmio (custom AXI-Lite IP)
-- squarer_stream (custom AXI Stream IP)
+Required blocks in the design:
+- squarer_mmio (RTL module, AXI-Lite)
+- squarer_stream (RTL module, AXI Stream)
 - AXI DMA
 - AXI Interconnect

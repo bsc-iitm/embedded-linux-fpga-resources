@@ -25,7 +25,7 @@ Code to be simulated is present in `smarttimer/rtl`.  You should be able to set 
 - Demonstrate how to download the linux source
 - Use the config as given in the course (or as updated for the labs)
 - Create a standard initramfs (follow steps)
-- Create vmlinux and zImage
+- Create the kernel image (`zImage`)
 
 ### E3: Create a bit file with smarttimer 
 
@@ -41,11 +41,11 @@ Code to be simulated is present in `smarttimer/rtl`.  You should be able to set 
 
 - Compile the initramfs from busybox
 - Compile modules from sources and install
-- Create initramfs and `vmlinux` (use `initramfs-setup.sh`)
+- Create initramfs and rebuild the `zImage` (use `initramfs-setup.sh`)
 
 ### E5: Create boot image and boot
 
-- Integrate the vmlinux and extracted DTS to get `image.ub`
+- Integrate the `zImage` and compiled DTB to get `image.ub`
 - Place onto SD-card
 - Boot
 
