@@ -1,86 +1,67 @@
-# Lab Operations
+# In-Person Lab: Embedded Linux on the Pynq Board
 
-These are notes specifically for the on-campus lab sessions for the course.  The main focus here is that students should be able to demonstrate functionality directly on the FPGA boards, and as such we do not have Renode based experiments as part of this lab session at the moment.  This could change in future, and the pre-reqs for the lab will involve demonstrating renode based assignments.
+These are the instructions for the on-campus lab sessions. The focus is to
+build custom hardware in Vivado, run a custom Linux kernel on a Pynq FPGA
+board, and demonstrate the hardware and its drivers working together on the
+real board. You are expected to be able to make changes on your own and
+demonstrate them live.
 
-For now, the main steps for what is expected are described below.  The actual demonstrations will be shown live during the lab sessions and students need to do these on their own and should be able to demonstrate the ability to make changes on their own.
+This lab is purely Vivado + on-board work. It does not use Renode or
+simulation - those are covered elsewhere in the course, not here.
 
-## Goals
+## What you will build
 
-- Demonstrate a basic Verilog design and simulation with cocotb: fixed AXI
-- Compile a Linux kernel with config for Pynq Z1 board
-- Create bit files 
-- Compile kernel modules
-- Demonstrate bootup and communication
+Two experiments, sharing one boot/kernel workflow:
 
-## Experiments
+1. **Smart timer** - a counter with a PWM output, controlled over AXI-Lite,
+   with an interrupt on counter wrap. You build the block design (with an ILA
+   to watch the AXI bus and a counter to blink the LEDs), then exercise it
+   through a platform driver and an interrupt-driven driver.
+2. **Squarer (MMIO vs DMA)** - compute `y = x * x` over a block of data two
+   ways: per-sample AXI-Lite (MMIO) and bulk AXI DMA streaming. You measure and
+   compare the throughput of the two paths.
 
-### E1: basic AXI simulation with cocotb
+## The lab, step by step
 
-This is just a repeat of work already done in the main session.  This is just to be shown as proof that you are familiar with the setup for writing code and simulating it.
+Work through the guides in order. Each builds on the previous one.
 
-Code to be simulated is present in `smarttimer/rtl`.  You should be able to set up the Python env and simulate it, and add/modify an existing test.
+| # | Guide | What you do |
+|---|-------|-------------|
+| 01 | [Environment setup](./docs/01-environment-setup.md) | Board info, packages, repo checkout, `setup.sh` |
+| 02 | [Kernel and boot image](./docs/02-kernel-and-boot-image.md) | Build the kernel/initramfs/DTB, make `image.ub`, boot the board |
+| 03 | [Smart timer](./docs/03-smarttimer.md) | Vivado design + drivers + on-board test |
+| 04 | [Squarer: MMIO vs DMA](./docs/04-squarer-mmio-dma.md) | DMA streaming design + drivers + performance comparison |
 
-### E2: Compile a basic Linux kernel 
+Start with 01 and 02 to get a plain custom kernel booting, then do 03 and 04
+to add hardware and drivers.
 
-- Demonstrate how to download the linux source
-- Use the config as given in the course (or as updated for the labs)
-- Create a standard initramfs (follow steps)
-- Create the kernel image (`zImage`)
+## Important: enable the PL level shifters
 
-### E3: Create a bit file with smarttimer 
-
-- Create a Xilinx project with Zynq - target Pynq-Z1 board
-  - Ensure that PL clock `FCLK0` is enabled.
-- Add verilog modules for smarttimer - use RTL in `smarttimer/rtl`
-- Add an ILA to monitor the AXI bus
-- Add a counter and connect bits `[27:24]` to `leds` (use AXI slice IP)
-- Add a pin connection XDC file that maps the LEDs to the correct pins
-- Synthesize, Implement, and then Generate bit file
-
-### E4: Compile drivers for smarttimer 
-
-- Compile the initramfs from busybox
-- Compile modules from sources and install
-- Create initramfs and rebuild the `zImage` (use `initramfs-setup.sh`)
-
-### E5: Create boot image and boot
-
-- Integrate the `zImage` and compiled DTB to get `image.ub`
-- Place onto SD-card
-- Boot
-
-### E6: Module squarer: with MMIO and DMA
-
-- Two versions of a simple "squarer" module are provided, along with drivers
-- Create the project, compile the drivers, compile the test code
-  - Use MMIO and DMA to transfer large amounts of data into and out of system
-  - Measure time taken
-- Vary the input size and see how DMA changes in performance
-- Add an ILA to the AXI bus and see how the MMIO and DMA handle data transfer
-
-## IMPORTANT
-
-Must enable the level shifters!  After booting into the custom image, you need to execute the following command, otherwise the PL will not be enabled.  Question: how will you automate this?
+After every boot, the programmable logic (PL) is isolated from the processing
+system (PS) until you enable the level shifters. Run this on the board shell
+before expecting the PL to respond:
 
 ```
 devmem 0xF8000900 32 0xF
 ```
 
-## USEFUL COMMANDS
+Without it the PL gets no clock and the ILA shows nothing. *Question to think
+about: how would you automate this so you do not have to type it each boot?*
+
+## Quick command reference
 
 ```sh
 # Compile busybox
 make -C $BDIR -j$(nproc) CROSS_COMPILE=arm-linux-gnueabihf- install CONFIG_PREFIX=/tmp/initramfs
-# Set up the initramfs links
+# Set up the initramfs skeleton
 $LDIR/initramfs-setup.sh
-# Compile modules (in individual folders)
-# First run `make` to compile, then 
+# Compile a module (in its folder), then install it into the initramfs
+make
 make -C "$KDIR" M="$(pwd)" modules_install INSTALL_MOD_PATH=/tmp/initramfs
-# Compile the kernel with the new initramfs
+# Rebuild the kernel so the initramfs is repacked
 make -j -C $KDIR
-# Compile the DTB if needed
+# Compile the device tree
 dtc -I dts -O dtb pynq-z1.dts -o binfiles/pynq-z1.dtb
-# Go into `binfiles` and run
-mkimage -f boot.its
+# Build the boot image (from the binfiles folder)
+mkimage -f boot.its image.ub
 ```
-

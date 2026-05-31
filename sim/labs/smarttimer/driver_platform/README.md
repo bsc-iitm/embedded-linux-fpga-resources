@@ -41,7 +41,7 @@ kernel will fault when it tries to access the registers.
 ## Run on the board
 
 After booting the custom image, activating the level shifters and programming
-the bitstream (see the [walkthrough](../../walk-through.md)):
+the bitstream (see [docs/03 - Smart timer](../../docs/03-smarttimer.md)):
 
 ```bash
 modprobe smarttimer_platform
