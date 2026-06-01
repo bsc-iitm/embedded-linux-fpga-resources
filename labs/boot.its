@@ -7,7 +7,7 @@
     images {
         kernel {
             description = "Linux Kernel";
-            data = /incbin/("zImage");
+            data = /incbin/("binfiles/zImage");
             type = "kernel";
             arch = "arm";
             os = "linux";
@@ -21,7 +21,7 @@
 
         fdt {
             description = "Device Tree Blob";
-            data = /incbin/("pynq-z1.dtb");
+            data = /incbin/("binfiles/pynq-z1.dtb");
             type = "flat_dt";
             arch = "arm";
             compression = "none";

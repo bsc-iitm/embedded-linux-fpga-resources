@@ -69,6 +69,10 @@ Add an XDC constraint file (the name does not matter) mapping the counter slice
 output to the board LEDs. This is only for debugging, but without the mapping
 the bitstream generation will fail. Use `LVCMOS33` for the LED pins.
 
+The base XDC file for the Pynq-Z1 board is in this folder.  If you add the entire file
+you will most likely face problems as most of the signals there are not in your
+design.  Extract only the entries for the LEDs and put them in a new constraint file.
+
 ## Step 3: Generate the bitstream
 
 Validate the design, generate the block design, create an HDL wrapper, then run
@@ -101,8 +105,9 @@ make -j4 -C $KDIR
 ```
 
 This produces a fresh `zImage`; rebuild `image.ub` as in
-[02 - Kernel and boot image](./02-kernel-and-boot-image.md) and copy it to the
-SD card.
+[02 - Kernel and boot image](./02-kernel-and-boot-image.md) - remember to
+re-copy `zImage` into `binfiles` before `mkimage`, since it is a copy, not a
+symlink - and copy the new `image.ub` to the SD card.
 
 ## Step 5: Device tree
 

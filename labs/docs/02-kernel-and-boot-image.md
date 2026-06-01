@@ -56,15 +56,25 @@ device.
 ## Step 3: Build the boot image (image.ub)
 
 `image.ub` is a U-Boot FIT image that packages the `zImage` and the DTB
-together. It is described by [boot.its](../boot.its), which references `zImage`
-and `pynq-z1.dtb` in the current folder, with the load and entry addresses set
-to `0x00080000`.
+together. It is described by [boot.its](../boot.its), which references
+`binfiles/zImage` and `binfiles/pynq-z1.dtb` with the load and entry addresses
+set to `0x00080000`.
+
+Run `mkimage` from `$LDIR` (the folder that holds `boot.its`). `mkimage` invokes
+`dtc`, which resolves the `/incbin/` data files *relative to the location of the
+`.its` file*, so the paths in `boot.its` are written relative to `$LDIR`:
 
 ```bash
-cd $LDIR/binfiles
-ln -s $KDIR/arch/arm/boot/zImage .   # symlink so you do not copy it each rebuild
-mkimage -f ../boot.its image.ub
+cd $LDIR
+cp $KDIR/arch/arm/boot/zImage binfiles/zImage   # copy the freshly built kernel in
+mkimage -f boot.its binfiles/image.ub
 ```
+
+*Copy, do not symlink:* `mkimage`/`dtc` does not reliably read a symlinked
+`zImage` here (it reports `Couldn't open "zImage"`), so copy the real file. The
+trade-off is that the copy does not track later kernel builds - **every time you
+rebuild the kernel you must re-run the `cp` above before `mkimage`**, or
+`image.ub` will contain a stale kernel.
 
 ## Step 4: Copy to the SD card
 
@@ -110,7 +120,7 @@ Useful when debugging the image or starting from an existing `image.ub`.
 |------|---------|
 | List FIT contents and metadata | `dumpimage -l image.ub` |
 | Extract component N | `dumpimage -T flat_dt -p N -o output image.ub` |
-| Build FIT image | `mkimage -f boot.its image.ub` |
+| Build FIT image (from `$LDIR`) | `mkimage -f boot.its binfiles/image.ub` |
 | Dump FIT structure | `fdtdump image.ub` |
 
 To extract the kernel and DTB from a working reference image (component 0 is

@@ -62,6 +62,8 @@ make -C "$KDIR" M="$(pwd)" modules_install INSTALL_MOD_PATH=/tmp/initramfs
 make -j -C $KDIR
 # Compile the device tree
 dtc -I dts -O dtb pynq-z1.dts -o binfiles/pynq-z1.dtb
-# Build the boot image (from the binfiles folder)
-mkimage -f boot.its image.ub
+# Build the boot image (run from $LDIR, where boot.its lives).
+# Copy (do not symlink) the kernel in; re-copy after every kernel rebuild.
+cp $KDIR/arch/arm/boot/zImage binfiles/zImage
+mkimage -f boot.its binfiles/image.ub
 ```

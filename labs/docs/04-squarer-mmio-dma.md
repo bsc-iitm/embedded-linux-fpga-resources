@@ -183,8 +183,9 @@ cp ./test_squarer /tmp/initramfs
 ```
 
 Now rebuild the kernel and `image.ub` (see
-[02 - Kernel and boot image](./02-kernel-and-boot-image.md)), recompile the DTB
-with the squarer nodes enabled, and copy the new `image.ub` to the SD card.
+[02 - Kernel and boot image](./02-kernel-and-boot-image.md); re-copy `zImage`
+into `binfiles` before `mkimage`), recompile the DTB with the squarer nodes
+enabled, and copy the new `image.ub` to the SD card.
 
 ## Step 7: Run and compare
 
