@@ -1,3 +1,0 @@
-smarttimer: Memory.MappedMemory @ sysbus 0x70000000
-    size: 0x1000
-
