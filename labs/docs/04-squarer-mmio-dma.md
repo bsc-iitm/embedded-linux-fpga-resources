@@ -57,7 +57,7 @@ interfaces, exactly as for the smart timer.
 
 ## Step 2: Build the block design
 
-![Vivado block design](../squarer/block-design.png)
+![Vivado block design](../squarer/block_diagram__AXI_Smart_connect.png)
 
 Add and configure these blocks:
 
